@@ -13,10 +13,14 @@ readLogs(logFilePath, (line) => {
     processLog(line);
 });
 
-const worker = new Worker('./workers/logWorker.js');
-worker.postMessage(logLines);
-worker.on('message', (msg) => {
-    console.log(`Total Critical Errors ${msg.errors}`);
-});
+setTimeout(() => {
+    const worker = new Worker('./workers/logWorker.js');
 
+    worker.on('message', (msg) => {
+        console.log(`📊 Worker Result: ${msg.errors} critical errors found`);
+        fs.writeFileSync('./processedLogs/processed.json', JSON.stringify(msg, null, 2));
+    });
+
+    worker.postMessage(logLines);
+}, 2000);
 
